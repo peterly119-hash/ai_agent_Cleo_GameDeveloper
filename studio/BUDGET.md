@@ -8,3 +8,4 @@ Costs are estimates entered by the producer at the end of each work session
 | Date | Game | Work | Est. cost | Month-to-date |
 |---|---|---|---|---|
 | 2026-11-08 | studio | Studio setup + Four Crowns GDD | (fill from usage view) | — |
+| 2026-11-08 | four-crowns | M1 vertical slice build + QA | (fill from usage view) | — |

@@ -10,3 +10,8 @@ npm run gates        # all quality gates for lib + every game
 Slash commands (in Claude Code, from this folder): `/new-game`, `/build-milestone`, `/feedback`, `/release`.
 
 Games live in `games/<slug>/`; shared systems in `lib/`.
+
+## Games
+| Game | Status | Run |
+|---|---|---|
+| [Four Crowns](games/four-crowns/GDD.md) | M1 vertical slice | `npm run dev -w games/four-crowns` → http://localhost:5173 |

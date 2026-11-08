@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "four-crowns",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "-w", "games/four-crowns", "--", "--port", "5173", "--strictPort"],
+      "port": 5173
+    }
+  ]
+}

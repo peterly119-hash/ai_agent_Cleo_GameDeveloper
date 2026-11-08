@@ -1,0 +1,20 @@
+{
+  "seed": 101,
+  "loadMs": 201,
+  "result": "won",
+  "round": 5,
+  "score": 723,
+  "fps": {
+    "samples": 93,
+    "min": 57,
+    "avg": 60
+  },
+  "consoleErrors": [],
+  "screens": [
+    "plan",
+    "battle",
+    "reward",
+    "pause",
+    "boss"
+  ]
+}

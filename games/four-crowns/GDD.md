@@ -1,7 +1,7 @@
 # Four Crowns — Game Design Document
 
 - **Slug:** four-crowns
-- **Status:** Draft (awaiting CD approval)
+- **Status:** Approved (2026-11-08). Open questions in §14 resolved with defaults: Ember Throne first, player-cast decrees, 5-round run
 - **Version:** 0.1
 - **Owner:** designer · **Approver:** Creative Director
 - **Scope of this version:** Milestone 1, the vertical slice. Later milestones are listed in §12 but are not designed in detail yet.
@@ -171,7 +171,7 @@ src/data/
   enemies.ts           Shardborn
   factions/
     index.ts           registry: FACTIONS = [emberThrone, stoneCourt, galeCovenant, tideCircle]
-    ember-throne/      faction.ts, buildings.ts, units.ts, skills.ts, edicts.ts, cards.ts
+    ember-throne/      index.ts (one file per faction in M1; split into buildings/units/skills files when content grows)
     stone-court/       faction.ts only (playable: false)
     ...
 ```
