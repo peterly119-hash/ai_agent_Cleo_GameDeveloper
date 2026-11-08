@@ -171,7 +171,7 @@ src/data/
   enemies.ts           Shardborn
   factions/
     index.ts           registry: FACTIONS = [emberThrone, stoneCourt, galeCovenant, tideCircle]
-    ember-throne/      faction.ts, buildings.ts, units.ts, skills.ts, edicts.ts, cards.ts
+    ember-throne/      index.ts (one file per faction in M1; split into buildings/units/skills files when content grows)
     stone-court/       faction.ts only (playable: false)
     ...
 ```
