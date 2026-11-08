@@ -2,6 +2,13 @@
 
 Newest first.
 
+## D-006 — 2026-11-08 — Action points replace gold; the hand persists
+- **Context:** CD playtest feedback (`feedback/2026-11-08.md`).
+- **Decision:** 1 action per turn (`BALANCE.actionsPerTurn`); every card costs `actionCost` (1). Gold is removed. No redraw: you start with 4 cards and each round's reward pick is added to your hand. Played cards are consumed. Extra actions come from Rally (+2 this turn), War Council (+1 per turn while standing; +2 at tier 3) and Scorched Earth (+1 refund). Skipping a reward gives +1 action next turn.
+- **Alternatives:** Keep gold alongside actions (CD rejected: two limits are overkill); allow unspent actions to carry over (CD did not pick).
+- **Consequences:** Far fewer plays per run (about 1–2 per round), so waves were re-tuned with the bot sweep (see D-007).
+- **Decided by:** CD (mechanics); studio (skip reward, numbers).
+
 ## D-005 — 2026-11-08 — M1 starting balance kept as designed
 - **Context:** 30-seed headless sweep with the reference bot (`src/sim/bot.ts`).
 - **Decision:** Keep the GDD §5 numbers. The bot wins 20/30 (67%) with 8.3 average Crown HP left; losses happen in rounds 3–5; simulated battles last 25–54 s. A guard test keeps the bot win rate between 40% and 95%.

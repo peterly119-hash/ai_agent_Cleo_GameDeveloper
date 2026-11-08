@@ -18,8 +18,12 @@ export type Effect =
   | { kind: 'splash'; radius: number; fraction: number }
   /** Unit: loses HP every second. */
   | { kind: 'selfDamage'; hpPerSecond: number }
-  /** Edict: gain a resource ('gold' or the faction's primary resource id). */
+  /** Edict: gain the faction's primary resource. */
   | { kind: 'gainResource'; resource: string; amount: number }
+  /** Edict: gain extra actions this turn. */
+  | { kind: 'gainActions'; amount: number }
+  /** Building passive: extra actions at the start of every turn while it stands. */
+  | { kind: 'actionsPerTurn'; amount: number }
   /** Edict (targets a building): permanent modifier on its units. */
   | { kind: 'statModifier'; attackSpeedPct?: number; damageFlat?: number; maxStacks: number }
   /** Edict (targets a building): destroy it for resources and buff its neighbours. */
@@ -50,7 +54,7 @@ export interface FactionDef {
   description: string;
   playstyle: string;
   primaryResource: ResourceDef;
-  startingResources: { gold: number; primary: number };
+  startingResources: { primary: number };
   passive: { name: string; description: string; effects: readonly Effect[] };
   strengths: readonly string[];
   weaknesses: readonly string[];
@@ -64,8 +68,8 @@ export interface FactionDef {
   skills: readonly SkillDef[];
   edicts: readonly EdictDef[];
   cards: readonly CardDef[];
-  /** Card ids, duplicates allowed. */
-  startingDeck: readonly string[];
+  /** Card ids in the opening hand, duplicates allowed. */
+  startingHand: readonly string[];
 }
 
 export interface BuildingTierDef {
@@ -78,7 +82,7 @@ export interface BuildingDef {
   id: string;
   name: string;
   description: string;
-  /** Gold to build; upgrading costs the same (play the card again). */
+  /** Actions to build; upgrading costs the same (play the card again). */
   constructionCost: number;
   /** Unit id this building generates, or null for support buildings. */
   unitGeneration: string | null;
@@ -149,8 +153,8 @@ export interface CardDef {
   type: CardType;
   /** Id of the building / edict / skill this card plays. */
   ref: string;
-  /** Gold cost to play. */
-  cost: number;
+  /** Actions needed to play. */
+  actionCost: number;
   /** Relative chance in reward draws (0 = never offered). */
   rewardWeight: number;
 }
@@ -188,11 +192,11 @@ export interface BalanceConfig {
   gridSize: number;
   crownTile: number;
   crownHp: number;
-  handSize: number;
-  incomePerRound: number;
+  actionsPerTurn: number;
   rounds: number;
   rewardOptions: number;
-  rewardSkipGold: number;
+  /** Extra actions next turn when the reward is skipped. */
+  rewardSkipActions: number;
   laneLength: number;
   battleTimeCap: number;
   spawnStagger: number;

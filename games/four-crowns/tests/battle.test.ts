@@ -6,8 +6,8 @@ import { Run } from '../src/sim/run';
 
 const F = 'ember-throne';
 
-function runWith(tiles: Record<number, { id: string; tier?: TierIndex }>, primary = 0): Run {
-  const run = new Run(F, 11);
+function runWith(tiles: Record<number, { id: string; tier?: TierIndex }>, primary = 0, balance = BALANCE): Run {
+  const run = new Run(F, 11, balance);
   for (const [t, b] of Object.entries(tiles)) {
     run.state.grid[Number(t)] = { buildingId: b.id, tier: b.tier ?? 0, attackSpeedStacks: 0, attackSpeedPct: 0, damageBonus: 0 };
   }
@@ -110,10 +110,12 @@ describe('Battle', () => {
 
 describe('Decrees', () => {
   it('Firestorm costs embers, hits one lane and goes on cooldown', () => {
-    const run = runWith({}, 10);
+    // Fast spawns so every enemy is on the field (and far from the crown) when we cast.
+    const run = runWith({}, 10, { ...BALANCE, spawnStagger: 1 });
     run.state.skills['firestorm'] = 0;
     const b = new Battle(run, wave([{ enemy: 'shardling', count: 2, lane: 0 }, { enemy: 'shardling', count: 1, lane: 2 }]));
-    ticks(b, 21);
+    ticks(b, 2);
+    expect(b.pendingSpawns).toBe(0);
     expect(b.cast('firestorm', null).ok).toBe(false);
     expect(b.cast('firestorm', 0)).toEqual({ ok: true });
     expect(b.primary).toBe(4);

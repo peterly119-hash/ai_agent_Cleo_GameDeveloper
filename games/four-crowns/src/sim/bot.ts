@@ -15,6 +15,8 @@ interface Option {
 /** Tuning for the bot lives here, not scattered through logic. */
 export const BOT = {
   rewardPriority: [
+    'card-war-council',
+    'card-rally',
     'card-blaze-forge',
     'card-war-drums',
     'card-kiln',
@@ -23,7 +25,6 @@ export const BOT = {
     'card-rebirth-pyre',
     'card-firestorm',
     'card-stoke',
-    'card-tithe',
     'card-scorched-earth',
   ],
   firestormMinEnemies: 3,
@@ -78,7 +79,8 @@ function optionFor(run: Run, handIndex: number): Option | null {
 
   if (card.type === 'edict') {
     const edict = run.content.edict(card.ref);
-    if (edict.effects.some((e) => e.kind === 'gainResource')) priority = 100;
+    const onlyActions = edict.effects.every((e) => e.kind === 'gainActions');
+    if (onlyActions) priority = run.state.hand.length > 1 ? 100 : 0;
     else if (edict.effects.some((e) => e.kind === 'statModifier')) {
       let bestTier = -1;
       grid.forEach((b, i) => {
@@ -100,8 +102,12 @@ function optionFor(run: Run, handIndex: number): Option | null {
     } else {
       tile = bestTileFor(run, card.ref);
       if (tile !== undefined) {
-        if (isAuraBuilding(run, card.ref)) priority = producers >= 2 ? 60 : 20;
-        else priority = card.cost >= 6 ? 75 : 65;
+        const def = run.content.building(card.ref);
+        const givesActions = def.upgradePaths[0].passiveEffects.some((e) => e.kind === 'actionsPerTurn');
+        const heavy = def.unitGeneration !== null && run.content.unit(def.unitGeneration).unitType === 'heavy';
+        if (givesActions) priority = run.state.round <= 3 ? 80 : 10;
+        else if (isAuraBuilding(run, card.ref)) priority = producers >= 2 ? 60 : 20;
+        else priority = heavy ? 75 : 65;
       }
     }
   }
