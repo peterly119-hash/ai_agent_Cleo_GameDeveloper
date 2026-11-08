@@ -2,6 +2,12 @@
 
 Newest first.
 
+## D-005 — 2026-11-08 — M1 starting balance kept as designed
+- **Context:** 30-seed headless sweep with the reference bot (`src/sim/bot.ts`).
+- **Decision:** Keep the GDD §5 numbers. The bot wins 20/30 (67%) with 8.3 average Crown HP left; losses happen in rounds 3–5; simulated battles last 25–54 s. A guard test keeps the bot win rate between 40% and 95%.
+- **Consequences:** A human using Kiln synergy should win more often than the bot. CD playtest will confirm.
+- **Decided by:** designer.
+
 ## D-004 — 2026-11-08 — Lane-based battles tied to grid rows
 - **Context:** The auto-battler needs grid placement to matter, and battles must be deterministic and testable.
 - **Decision:** Each grid row feeds one lane, and units fight only within their lane on a fixed 50 ms tick simulation in pure TS.

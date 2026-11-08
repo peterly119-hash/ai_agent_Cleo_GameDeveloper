@@ -1,7 +1,7 @@
 # Four Crowns — Game Design Document
 
 - **Slug:** four-crowns
-- **Status:** Draft (awaiting CD approval)
+- **Status:** Approved (2026-11-08). Open questions in §14 resolved with defaults: Ember Throne first, player-cast decrees, 5-round run
 - **Version:** 0.1
 - **Owner:** designer · **Approver:** Creative Director
 - **Scope of this version:** Milestone 1, the vertical slice. Later milestones are listed in §12 but are not designed in detail yet.

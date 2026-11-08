@@ -1,0 +1,21 @@
+{
+  "name": "four-crowns",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Four Crowns: elemental roguelike kingdom auto-battler (Questwright)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "balance": "vitest run tests/balance-sweep.test.ts --reporter=verbose --silent=false",
+    "gates": "npm run typecheck && npm run test && npm run build && npm run e2e"
+  },
+  "dependencies": {
+    "@questwright/lib": "0.1.0",
+    "phaser": "3.90.0"
+  }
+}
