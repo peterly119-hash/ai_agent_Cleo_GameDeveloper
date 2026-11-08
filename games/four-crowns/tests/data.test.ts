@@ -11,6 +11,8 @@ const KNOWN_EFFECTS = new Set<Effect['kind']>([
   'splash',
   'selfDamage',
   'gainResource',
+  'gainActions',
+  'actionsPerTurn',
   'statModifier',
   'destroyBuildingFor',
   'laneDamage',
@@ -46,7 +48,8 @@ describe('content validation', () => {
         const refs = new Set([...f.buildings, ...f.edicts, ...f.skills].map((x) => x.id));
         for (const c of f.cards) expect(refs.has(c.ref), c.id).toBe(true);
         const cards = new Set(f.cards.map((c) => c.id));
-        for (const id of f.startingDeck) expect(cards.has(id), id).toBe(true);
+        for (const id of f.startingHand) expect(cards.has(id), id).toBe(true);
+        for (const c of f.cards) expect(c.actionCost).toBeGreaterThan(0);
       });
 
       it('has 3 tiers per building, unit and skill, with sane numbers', () => {

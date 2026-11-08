@@ -32,6 +32,7 @@ const hook = <T>(page: Page, fn: (h: Hook) => T): Promise<T> =>
   }, fn.toString());
 
 async function shot(page: Page, name: string): Promise<void> {
+  if (process.env['QW_NO_SHOTS']) return;
   await page.waitForTimeout(350);
   await page.screenshot({ path: join(SHOTS, `${name}.png`) });
 }
@@ -41,6 +42,20 @@ test('bot plays a full run with all gates satisfied', async ({ page }) => {
   const errors: string[] = [];
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
   page.on('pageerror', (e) => errors.push(e.message));
+  // Long-frame log (> 25 ms) tagged with the game phase, for diagnosing fps dips.
+  await page.addInitScript(() => {
+    const w = window as unknown as { __longFrames: { ms: number; at: string }[]; __QW__?: { scene: string; state: Record<string, unknown> } };
+    w.__longFrames = [];
+    let last = performance.now();
+    const loop = (t: number): void => {
+      const d = t - last;
+      last = t;
+      const h = w.__QW__;
+      if (d > 25 && h?.scene === 'Run') w.__longFrames.push({ ms: Math.round(d), at: `r${String(h.state['round'])}:${String(h.state['phase'])}` });
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  });
 
   // Gate 1: load time.
   const t0 = Date.now();
@@ -137,7 +152,15 @@ test('bot plays a full run with all gates satisfied', async ({ page }) => {
 
   const minFps = fpsSamples.length ? Math.min(...fpsSamples) : 0;
   const avgFps = fpsSamples.reduce((a, b) => a + b, 0) / Math.max(1, fpsSamples.length);
+  const longFrames = await page.evaluate(() => (window as unknown as { __longFrames: unknown[] }).__longFrames);
+  const gpu = await page.evaluate(() => {
+    const gl = document.createElement('canvas').getContext('webgl');
+    const ext = gl?.getExtension('WEBGL_debug_renderer_info');
+    return ext && gl ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : 'unknown';
+  });
   const report = {
+    gpu,
+    longFrames,
     seed: SEED,
     loadMs,
     result: final['result'],

@@ -24,10 +24,12 @@ export interface RunState {
   round: number;
   phase: Phase;
   crownHp: number;
-  gold: number;
+  /** Actions left this turn. */
+  actions: number;
+  /** Bonus actions banked for next turn (e.g. from skipping a reward). */
+  bonusActionsNext: number;
   primary: number;
-  deck: string[];
-  discard: string[];
+  /** Persistent hand: cards are consumed when played; rewards are added here. */
   hand: string[];
   /** gridSize² tiles; the crown tile is always null. */
   grid: (BuildingInstance | null)[];
@@ -57,11 +59,10 @@ export class Run {
       round: 0,
       phase: 'plan',
       crownHp: balance.crownHp,
-      gold: faction.startingResources.gold,
+      actions: 0,
+      bonusActionsNext: 0,
       primary: faction.startingResources.primary,
-      deck: this.rng.shuffle(faction.startingDeck),
-      discard: [],
-      hand: [],
+      hand: [...faction.startingHand],
       grid: Array.from({ length: balance.gridSize * balance.gridSize }, () => null),
       skills: {},
       kills: 0,
@@ -92,6 +93,18 @@ export class Run {
     return Math.floor(tile / this.balance.gridSize);
   }
 
+  /** Actions granted at the start of each turn: base + buildings with actionsPerTurn. */
+  actionsPerTurn(): number {
+    let total = this.balance.actionsPerTurn;
+    for (const b of this.state.grid) {
+      if (!b) continue;
+      for (const e of this.content.building(b.buildingId).upgradePaths[b.tier].passiveEffects) {
+        if (e.kind === 'actionsPerTurn') total += e.amount;
+      }
+    }
+    return total;
+  }
+
   score(): number {
     const s = this.balance.score;
     const cleared = this.state.phase === 'won' ? this.state.round : Math.max(0, this.state.round - 1);
@@ -102,23 +115,8 @@ export class Run {
     const s = this.state;
     s.round += 1;
     s.phase = 'plan';
-    s.gold += this.balance.incomePerRound;
-    s.hand = this.draw(this.balance.handSize);
-  }
-
-  private draw(n: number): string[] {
-    const s = this.state;
-    const out: string[] = [];
-    for (let i = 0; i < n; i++) {
-      if (s.deck.length === 0) {
-        if (s.discard.length === 0) break;
-        s.deck = this.rng.shuffle(s.discard);
-        s.discard = [];
-      }
-      const card = s.deck.pop();
-      if (card !== undefined) out.push(card);
-    }
-    return out;
+    s.actions = this.actionsPerTurn() + s.bonusActionsNext;
+    s.bonusActionsNext = 0;
   }
 
   /** Validates without changing state. */
@@ -144,13 +142,12 @@ export class Run {
     const cardId = s.hand[handIndex];
     if (cardId === undefined) return { ok: false, reason: 'No such card' };
     const card = this.content.card(cardId);
-    if (card.cost > s.gold) return { ok: false, reason: 'Not enough gold' };
+    if (card.actionCost > s.actions) return { ok: false, reason: 'No actions left this turn' };
 
     const commit = (effect: () => void): PlayResult => {
       if (dry) return { ok: true };
-      s.gold -= card.cost;
+      s.actions -= card.actionCost;
       s.hand.splice(handIndex, 1);
-      s.discard.push(cardId);
       effect();
       return { ok: true };
     };
@@ -191,13 +188,14 @@ export class Run {
 
     return commit(() => {
       for (const e of edict.effects) {
-        if (e.kind === 'gainResource') this.gain(e.resource, e.amount);
+        if (e.kind === 'gainResource') this.gainPrimary(e.resource, e.amount);
+        else if (e.kind === 'gainActions') s.actions += e.amount;
         else if (e.kind === 'statModifier' && target) {
           target.attackSpeedStacks += 1;
           target.attackSpeedPct += e.attackSpeedPct ?? 0;
           target.damageBonus += e.damageFlat ?? 0;
         } else if (e.kind === 'destroyBuildingFor' && target && tile !== undefined) {
-          this.gain(e.resource, e.amountPerTier * (target.tier + 1));
+          this.gainPrimary(e.resource, e.amountPerTier * (target.tier + 1));
           s.grid[tile] = null;
           for (const n of this.adjacent(tile)) {
             const b = s.grid[n];
@@ -208,19 +206,17 @@ export class Run {
     });
   }
 
-  private gain(resource: string, amount: number): void {
-    if (resource === 'gold') this.state.gold += amount;
-    else if (resource === this.content.faction.primaryResource.id) {
+  private gainPrimary(resource: string, amount: number): void {
+    if (resource === this.content.faction.primaryResource.id) {
       this.state.primary = Math.min(this.primaryCap, this.state.primary + amount);
     }
   }
 
-  /** Ends planning and creates the battle for this round. */
+  /** Ends planning and creates the battle for this round. Unspent actions are lost. */
   startBattle(): Battle {
     const s = this.state;
     if (s.phase !== 'plan') throw new Error('startBattle outside plan phase');
-    s.discard.push(...s.hand);
-    s.hand = [];
+    s.actions = 0;
     s.phase = 'battle';
     return new Battle(this, this.content.wave(s.round));
   }
@@ -257,13 +253,13 @@ export class Run {
     return out;
   }
 
-  /** Take reward `index`, or null to skip for gold. Starts the next round. */
+  /** Take reward `index` into the hand, or null to skip for bonus actions. Starts the next round. */
   chooseReward(index: number | null): void {
     const s = this.state;
     if (s.phase !== 'reward') throw new Error('chooseReward outside reward phase');
     const picked = index === null ? undefined : s.rewardOptions[index];
-    if (picked !== undefined) s.discard.push(picked);
-    else s.gold += this.balance.rewardSkipGold;
+    if (picked !== undefined) s.hand.push(picked);
+    else s.bonusActionsNext += this.balance.rewardSkipActions;
     s.rewardOptions = [];
     this.startRound();
   }

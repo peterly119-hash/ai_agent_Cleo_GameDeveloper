@@ -5,8 +5,8 @@ import { emberThrone } from './ember-throne';
  * Faction registry. Adding a faction = add a data folder + one line here (GDD §11).
  * Non-playable factions carry identity data only until their milestone.
  */
-function stub(def: Omit<FactionDef, 'buildings' | 'units' | 'skills' | 'edicts' | 'cards' | 'startingDeck' | 'playable'>): FactionDef {
-  return { ...def, playable: false, buildings: [], units: [], skills: [], edicts: [], cards: [], startingDeck: [] };
+function stub(def: Omit<FactionDef, 'buildings' | 'units' | 'skills' | 'edicts' | 'cards' | 'startingHand' | 'playable'>): FactionDef {
+  return { ...def, playable: false, buildings: [], units: [], skills: [], edicts: [], cards: [], startingHand: [] };
 }
 
 const stoneCourt = stub({
@@ -16,7 +16,7 @@ const stoneCourt = stub({
   description: 'Patient wall-builders whose island grows heavier every day it stands.',
   playstyle: 'Defensive: outlast with walls and armour, scale slowly into an unbreakable late game.',
   primaryResource: { id: 'stone', name: 'Stone', cap: 40 },
-  startingResources: { gold: 8, primary: 2 },
+  startingResources: { primary: 2 },
   passive: { name: 'Settled Ground', description: "Each building's units gain +5% HP per round it has stood (max +50%).", effects: [] },
   strengths: ['Durable', 'Late-game scaling', 'Great against swarms'],
   weaknesses: ['Slow start', 'Low damage', 'Weak to ranged chip and burn'],
@@ -31,7 +31,7 @@ const galeCovenant = stub({
   description: 'Swift monks of the high winds who strike first and are gone before the counter.',
   playstyle: 'Tempo: cheap fast swarms, extra attacks, and shoving enemies between lanes.',
   primaryResource: { id: 'momentum', name: 'Momentum', cap: 20 },
-  startingResources: { gold: 9, primary: 0 },
+  startingResources: { primary: 0 },
   passive: { name: 'Tailwind', description: 'Units move 25% faster and their first hit strikes twice.', effects: [] },
   strengths: ['Fast', 'Flexible lanes', 'Great against slow tanks'],
   weaknesses: ['Fragile', 'Falls off against splash'],
@@ -46,7 +46,7 @@ const tideCircle = stub({
   description: 'Healers and shapeshifters who bend the island itself into new forms.',
   playstyle: 'Sustain and combos: heal through attrition, copy and transform neighbouring tiles.',
   primaryResource: { id: 'flow', name: 'Flow', cap: 30 },
-  startingResources: { gold: 8, primary: 0 },
+  startingResources: { primary: 0 },
   passive: { name: 'Ebb', description: '20% of damage your units deal heals the most injured ally in that lane.', effects: [] },
   strengths: ['Sustain', 'Combo engines', 'Wins long fights'],
   weaknesses: ['Low burst', 'Weak to burst damage and boss timers'],

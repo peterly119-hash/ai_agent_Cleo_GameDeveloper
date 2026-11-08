@@ -8,7 +8,7 @@ export const ENEMIES: readonly EnemyDef[] = [
   {
     id: 'rift-colossus',
     name: 'Rift Colossus',
-    health: 600,
+    health: 345,
     attackDamage: 12,
     attackSpeed: 0.5,
     movementSpeed: 15,
@@ -21,23 +21,23 @@ export const ENEMIES: readonly EnemyDef[] = [
 
 /** Round compositions (GDD §5.8). */
 export const WAVES: readonly WaveDef[] = [
-  { round: 1, groups: [{ enemy: 'shardling', count: 6, lane: 'random' }] },
-  { round: 2, groups: [{ enemy: 'shardling', count: 8, lane: 'random' }, { enemy: 'shard-slinger', count: 2, lane: 'random' }] },
+  { round: 1, groups: [{ enemy: 'shardling', count: 5, lane: 'random' }] },
+  { round: 2, groups: [{ enemy: 'shardling', count: 6, lane: 'random' }, { enemy: 'shard-slinger', count: 2, lane: 'random' }] },
   {
     round: 3,
+    groups: [
+      { enemy: 'shardling', count: 7, lane: 'random' },
+      { enemy: 'shard-slinger', count: 3, lane: 'random' },
+      { enemy: 'shard-brute', count: 1, lane: 'random' },
+    ],
+  },
+  {
+    round: 4,
     groups: [
       { enemy: 'shardling', count: 8, lane: 'random' },
       { enemy: 'shard-slinger', count: 4, lane: 'random' },
       { enemy: 'shard-brute', count: 2, lane: 'random' },
     ],
   },
-  {
-    round: 4,
-    groups: [
-      { enemy: 'shardling', count: 10, lane: 'random' },
-      { enemy: 'shard-slinger', count: 5, lane: 'random' },
-      { enemy: 'shard-brute', count: 4, lane: 'random' },
-    ],
-  },
-  { round: 5, groups: [{ enemy: 'rift-colossus', count: 1, lane: 1 }, { enemy: 'shardling', count: 6, lane: 'random' }] },
+  { round: 5, groups: [{ enemy: 'rift-colossus', count: 1, lane: 1 }, { enemy: 'shardling', count: 5, lane: 'random' }] },
 ];

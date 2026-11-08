@@ -1,12 +1,14 @@
 {
+  "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 (0x00002808) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "longFrames": [],
   "seed": 101,
-  "loadMs": 201,
+  "loadMs": 433,
   "result": "won",
   "round": 5,
-  "score": 723,
+  "score": 645,
   "fps": {
-    "samples": 93,
-    "min": 57,
+    "samples": 111,
+    "min": 60,
     "avg": 60
   },
   "consoleErrors": [],
