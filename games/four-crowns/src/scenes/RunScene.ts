@@ -204,7 +204,7 @@ export class RunScene extends Phaser.Scene {
     const boss = w.groups.some((g) => this.run.content.enemy(g.enemy).boss);
     this.infoTitle.setText(`Round ${this.run.state.round}: ${boss ? 'BOSS ' : ''}incoming`).setColor(hex(boss ? C.danger : C.text));
     this.info.setText(
-      `${parts.join(', ')}.\nEach card costs 1 action (you get ${this.run.actionsPerTurn()} per turn). Click a card, then a tile; same building on itself = upgrade. Your hand carries over.`,
+      `${parts.join(', ')}.\nCards cost 1 action (${this.run.actionsPerTurn()} per turn). Card, then tile; same building = upgrade. Your hand carries over.`,
     );
   }
 

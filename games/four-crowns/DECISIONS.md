@@ -2,6 +2,12 @@
 
 Newest first.
 
+## D-007 — 2026-11-08 — Retuned waves for the action economy
+- **Context:** With 1 action per turn the bot played about 6 cards per run (down from about 15), and the bot win rate fell to 3/30.
+- **Decision:** Smaller waves (5 / 6+2 / 7+3+1 / 8+4+2 / boss+5) and boss HP 600 → 345. The bot wins 20/30 (67%), the same as M1.
+- **Consequences:** The boss is a knife edge: 330 HP gives 80% and 355 HP gives 43%. The boss fight is close to all-or-nothing and needs design attention (e.g. a slam that scales, or partial siege damage).
+- **Decided by:** designer.
+
 ## D-006 — 2026-11-08 — Action points replace gold; the hand persists
 - **Context:** CD playtest feedback (`feedback/2026-11-08.md`).
 - **Decision:** 1 action per turn (`BALANCE.actionsPerTurn`); every card costs `actionCost` (1). Gold is removed. No redraw: you start with 4 cards and each round's reward pick is added to your hand. Played cards are consumed. Extra actions come from Rally (+2 this turn), War Council (+1 per turn while standing; +2 at tier 3) and Scorched Earth (+1 refund). Skipping a reward gives +1 action next turn.

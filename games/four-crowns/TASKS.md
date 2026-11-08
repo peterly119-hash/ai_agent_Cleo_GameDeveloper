@@ -23,6 +23,6 @@ Exit criteria: all 4 quality gates pass; the bot finishes 3 seeds and wins at le
 ## Milestone 1.1 — Action points + persistent hand (branch `m1.1-action-points`, from CD feedback 2026-11-08)
 | ID | Task | Owner | Est | Acceptance criteria | Status |
 |---|---|---|---|---|---|
-| FC-13 | Schema + data: actionCost on cards, gainActions/actionsPerTurn effects, Rally, War Council, Scorched Earth refund, starting hand; remove gold | designer | 1 h | Validation test passes; no gold left in data | doing |
-| FC-14 | Run rules: actions per turn, persistent hand, reward to hand, skip = +1 action next turn | engineer | 1.5 h | Unit tests per rule | todo |
-| FC-15 | UI (action HUD, card action cost, skip label, hand count, War Council icon), bot update, rebalance waves with the sweep, re-run all gates | engineer + qa | 2 h | All 4 gates pass; sweep win rate within 40–95% | todo |
+| FC-13 | Schema + data: actionCost on cards, gainActions/actionsPerTurn effects, Rally, War Council, Scorched Earth refund, starting hand; remove gold | designer | 1 h | Validation test passes; no gold left in data | done |
+| FC-14 | Run rules: actions per turn, persistent hand, reward to hand, skip = +1 action next turn | engineer | 1.5 h | Unit tests per rule | done |
+| FC-15 | UI (action HUD, card action cost, skip label, hand count, War Council icon), bot update, rebalance waves with the sweep, re-run all gates | engineer + qa | 2 h | All 4 gates pass; sweep win rate within 40–95% | done |

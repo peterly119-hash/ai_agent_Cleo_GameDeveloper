@@ -2,7 +2,7 @@
 
 - **Slug:** four-crowns
 - **Status:** Approved (2026-11-08). Open questions in §14 resolved with defaults: Ember Throne first, player-cast decrees, 5-round run
-- **Version:** 0.1
+- **Version:** 0.2 (Revised 2026-11-08 from CD feedback: action points, persistent hand, no gold. See DECISIONS D-006/D-007)
 - **Owner:** designer · **Approver:** Creative Director
 - **Scope of this version:** Milestone 1, the vertical slice. Later milestones are listed in §12 but are not designed in detail yet.
 
@@ -21,11 +21,11 @@ The Shattered Reach is a sky of broken floating islands. Four crowns are fightin
 ## 3. Core loop (one round)
 | Phase | What happens | Time |
 |---|---|---|
-| **Income** | +`incomePerRound` gold (data). Embers carry over. | instant |
-| **Plan** | Draw `handSize` (4) cards. Play any you can afford: place or upgrade buildings, cast edicts, learn decrees. Unplayed cards go to the discard pile. Press **Battle**. | player-paced |
+| **Actions** | Gain `actionsPerTurn` (1), plus +1 per War Council (+2 at tier 3), plus any banked bonus. Embers carry over. | instant |
+| **Plan** | Your hand carries over between rounds (no redraw). Each card costs 1 action: place or upgrade buildings, cast edicts, learn decrees. Played cards are used up. Unspent actions are lost when you press **Battle**. | player-paced |
 | **Battle** | The wave spawns from the right, and each building spawns units into its own row (lane). Fights resolve automatically. You may click decree buttons. | ≤ 75 s (≈ 20–40 s typical) |
 | **Resolve** | Enemies that reach the left edge deal their `siege` damage to the Crown. The battle ends when the wave is cleared, or at the 75 s cap, when every remaining enemy deals its siege damage (this prevents soft-locks). | instant |
-| **Reward** | Pick 1 of 3 cards for your deck, or skip for +3 gold. | player-paced |
+| **Reward** | Pick 1 of 3 cards to add to your hand (your only new card each round), or skip for +1 action next turn. | player-paced |
 
 Battle speed toggle: ×1 / ×2 / ×4 (the QA bot uses ×4).
 
@@ -43,7 +43,7 @@ Three card types:
 - **Edict:** a one-shot effect. Some target a building.
 - **Decree:** a battle skill. Playing it *learns* the decree for the rest of the run. Playing a decree you already know raises its level (max 3).
 
-Gold cost is shown on each card. The deck reshuffles its discard pile when empty.
+Each card shows its action cost (1 for every M1 card). There is no deck: you start with 4 cards in hand, and each round's reward pick is added.
 
 ### 4.3 Battle simulation (pure TypeScript, deterministic, seeded)
 - Fixed timestep of 50 ms ticks, independent of render fps.
@@ -54,7 +54,7 @@ Gold cost is shown on each card. The deck reshuffles its discard pile when empty
 - All numbers come from `src/data/`.
 
 ### 4.4 Resources
-- **Gold** (all factions): pays for cards. Start `startingGold` (8), plus `incomePerRound` (6).
+- **Actions** (all factions): 1 per turn (`BALANCE.actionsPerTurn`). Extra actions come from Rally (+2 this turn), War Council (+1 per turn; +2 at tier 3), Scorched Earth (refunds its action) and skipping a reward (+1 next turn). Gold was removed in v0.2.
 - **Faction resource** (one per faction): pays for decrees. For Ember Throne this is **Embers**, capped at 30, and they carry over between rounds.
 
 ## 5. Content: Milestone 1 (Ember Throne playable)
@@ -67,18 +67,19 @@ All values below are **starting tuning**. They live in `src/data/factions/ember-
 | Description | A court of reckless pyromancers who'd rather burn their island than lose it. |
 | Playstyle | Aggressive. Stack burn, trade your own buildings for power, end fights fast. |
 | Primary resource | Embers (cap 30) |
-| Starting resources | 8 gold, 0 embers, Crown 20 HP |
+| Starting resources | 1 action per turn, 0 embers, Crown 20 HP, 4-card hand |
 | Passive: *Kindling* | Every enemy that dies while burning grants +1 Ember. |
 | Strengths | High damage, snowballs, strong burst decrees |
 | Weaknesses | Fragile units; Furnace Brutes hurt themselves; weak if the burn engine is never built |
 
 ### 5.2 Buildings (each has 3 tiers)
-| id | Name | Cost | Produces | Passive / ability | Game stage | Synergy |
+| id | Name | Actions | Produces | Passive / ability | Game stage | Synergy |
 |---|---|---|---|---|---|---|
-| `cinder-barracks` | Cinder Barracks | 3 | Ashguard | — | early | Next to a Kiln, Ashguard burn on hit |
-| `pyre-range` | Pyre Range | 4 | Cinder Archer | Archers always apply Burn 1/1.5/2 dps | early–mid | Next to a Kiln, their burn dps is raised |
-| `kiln` | Kiln | 4 | — | Units from adjacent buildings apply Burn (+1/+1.5/+2 dps). At T3, adjacent units also get +10% attack speed. | mid | The engine of the burn build |
-| `blaze-forge` | Blaze Forge | 7 | Furnace Brute | — | late | Brute splash spreads burn when it is next to a Kiln |
+| `cinder-barracks` | Cinder Barracks | 1 | Ashguard | — | early | Next to a Kiln, Ashguard burn on hit |
+| `pyre-range` | Pyre Range | 1 | Cinder Archer | Archers always apply Burn 1/1.5/2 dps | early–mid | Next to a Kiln, their burn dps is raised |
+| `kiln` | Kiln | 1 | — | Units from adjacent buildings apply Burn (+1/+1.5/+2 dps). At T3, adjacent units also get +10% attack speed. | mid | The engine of the burn build |
+| `war-council` | War Council | 1 | — | +1 action every turn (+2 at T3). From T2, adjacent units +15% attack speed. | mid | Trades a fighter tile for tempo |
+| `blaze-forge` | Blaze Forge | 1 | Furnace Brute | — | late | Brute splash spreads burn when it is next to a Kiln |
 
 ### 5.3 Units (stats at T1 / T2 / T3)
 | id | Name | Role | HP | Dmg | Atk/s | Move px/s | Range px | Spawn s | Max alive | Special |
@@ -88,23 +89,23 @@ All values below are **starting tuning**. They live in `src/data/factions/ember-
 | `furnace-brute` | Furnace Brute | heavy splash | 80/120/170 | 10/15/22 | 0.5 | 22 | 24 | 10 | 1/1/2 | *Overheat:* loses 2 HP/s; hits splash 40 px |
 
 ### 5.4 Edicts
-| id | Name | Cost | Effect |
+| id | Name | Actions | Effect |
 |---|---|---|---|
-| `tithe` | Tithe | 0 | +4 gold |
-| `stoke` | Stoke | 2 | Target building's units get +20% attack speed for the rest of the run (stacks up to 3 times) |
-| `scorched-earth` | Scorched Earth | 0 | Destroy one of your buildings of tier N. Gain 4×N Embers, and adjacent buildings' units get +2 damage for the rest of the run. The **sacrifice build**. |
+| `rally` | Rally | 1 | +2 actions this turn (net +1). Replaces Tithe. |
+| `stoke` | Stoke | 1 | Target building's units get +20% attack speed for the rest of the run (stacks up to 3 times) |
+| `scorched-earth` | Scorched Earth | 1 | Destroy one of your buildings of tier N. Gain 4×N Embers, **refund this action**, and adjacent buildings' units get +2 damage for the rest of the run. The **sacrifice build**. |
 
 ### 5.5 Decrees (battle skills, cast with Embers)
-| id | Name | Card cost | Ember cost | Cooldown | Duration | Area | Effect (Lv1 / Lv2 / Lv3) |
+| id | Name | Card actions | Ember cost | Cooldown | Duration | Area | Effect (Lv1 / Lv2 / Lv3) |
 |---|---|---|---|---|---|---|---|
-| `firestorm` | Firestorm | 3 | 6 | 8 s | instant | one lane (click the lane) | 8/12/16 damage to every enemy in the lane, plus Burn 2 dps |
-| `war-drums` | War Drums | 3 | 4 | 12 s | 5 s | all lanes | Your units get +40/55/70% attack speed |
-| `rebirth-pyre` | Rebirth Pyre | 5 | 12 | 30 s | instant | all lanes | Revive the last 3/4/5 fallen units at 50% HP |
+| `firestorm` | Firestorm | 1 | 6 | 8 s | instant | one lane (click the lane) | 8/12/16 damage to every enemy in the lane, plus Burn 2 dps |
+| `war-drums` | War Drums | 1 | 4 | 12 s | 5 s | all lanes | Your units get +40/55/70% attack speed |
+| `rebirth-pyre` | Rebirth Pyre | 1 | 12 | 30 s | instant | all lanes | Revive the last 3/4/5 fallen units at 50% HP |
 
-### 5.6 Deck
-- **Starting deck (9):** Cinder Barracks ×2, Pyre Range ×2, Kiln ×1, Tithe ×2, Stoke ×1, Firestorm ×1
-- **Reward pool:** every faction card, weighted. Blaze Forge, Scorched Earth, War Drums and Rebirth Pyre appear only as rewards.
-- **Total:** 10 distinct cards (4 buildings, 3 edicts, 3 decrees).
+### 5.6 Hand
+- **Starting hand (4):** Cinder Barracks, Pyre Range, Kiln, Rally. The hand persists; there is no deck or redraw.
+- **Reward pool:** every faction card, weighted. Everything outside the starting hand arrives only as a reward.
+- **Total:** 11 distinct cards (5 buildings, 3 edicts, 3 decrees).
 
 ### 5.7 Enemies: the Shardborn (neutral invaders)
 | id | Name | HP | Dmg | Atk/s | Move | Range | Siege | Notes |
@@ -112,16 +113,18 @@ All values below are **starting tuning**. They live in `src/data/factions/ember-
 | `shardling` | Shardling | 12 | 2 | 1.0 | 55 | 18 | 1 | fast swarm |
 | `shard-slinger` | Shard Slinger | 10 | 3 | 0.7 | 35 | 140 | 1 | ranged |
 | `shard-brute` | Shard Brute | 60 | 6 | 0.6 | 25 | 22 | 3 | tank |
-| `rift-colossus` | Rift Colossus (boss) | 600 | 12 | 0.5 | 15 | 30 | 15 | every 6 s, *Slam* deals 8 damage to all units within 60 px |
+| `rift-colossus` | Rift Colossus (boss) | 345 | 12 | 0.5 | 15 | 30 | 15 | every 6 s, *Slam* deals 8 damage to all units within 60 px |
 
 ### 5.8 Waves (`src/data/waves.ts`), spawns staggered over the first 20 s
 | Round | Composition |
 |---|---|
-| 1 | 6 Shardlings |
-| 2 | 8 Shardlings, 2 Slingers |
-| 3 | 8 Shardlings, 4 Slingers, 2 Brutes |
-| 4 | 10 Shardlings, 5 Slingers, 4 Brutes |
-| 5 (boss) | Rift Colossus in the middle lane, plus 6 Shardlings |
+| 1 | 5 Shardlings |
+| 2 | 6 Shardlings, 2 Slingers |
+| 3 | 7 Shardlings, 3 Slingers, 1 Brute |
+| 4 | 8 Shardlings, 4 Slingers, 2 Brutes |
+| 5 (boss) | Rift Colossus in the middle lane, plus 5 Shardlings |
+
+v0.2: waves and boss HP were reduced to match the slower action economy (D-007).
 
 ### 5.9 The other three factions (designed in later milestones, stub data in M1)
 | Faction | Resource | Passive | Build A | Build B | Strong vs | Weak vs |
@@ -147,9 +150,9 @@ Balance intent: no faction dominates. Each has an early (cheap T1 producers), mi
 `Title → Faction Select → [Plan ⇄ Battle → Reward] × 5 → Run Summary (Victory/Defeat) → Title`
 1. **Title:** logo, Play, High Scores, mute toggle.
 2. **Faction Select:** 4 faction cards. Ember Throne is selectable; the other three are shown locked as "Coming soon", which shows the data-driven roster.
-3. **Plan:** the grid on the left (3×3), an empty battlefield preview on the right, the hand of 4 cards at the bottom, gold/embers/Crown HP/round in the top bar, and a Battle button.
+3. **Plan:** the grid on the left (3×3), an empty battlefield preview on the right, your hand at the bottom, actions/embers/Crown HP/round in the top bar, and a Battle button.
 4. **Battle:** grid plus the live battlefield, decree buttons with cooldown rings, and a speed toggle.
-5. **Reward:** 3 cards plus Skip (+3 gold).
+5. **Reward:** 3 cards plus Skip (+1 action next turn).
 6. **Run Summary:** victory or defeat, score, rounds, best score, Play again.
 7. **Overlay:** pause/settings (mute, speed), available from Plan and Battle with Esc.
 

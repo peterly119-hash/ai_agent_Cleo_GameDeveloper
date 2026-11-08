@@ -1,82 +1,14 @@
 {
-  "longFrames": [
-    {
-      "ms": 33,
-      "at": "r1:battle"
-    },
-    {
-      "ms": 33,
-      "at": "r1:battle"
-    },
-    {
-      "ms": 33,
-      "at": "r1:battle"
-    },
-    {
-      "ms": 33,
-      "at": "r1:reward"
-    },
-    {
-      "ms": 33,
-      "at": "r1:reward"
-    },
-    {
-      "ms": 33,
-      "at": "r1:reward"
-    },
-    {
-      "ms": 33,
-      "at": "r1:reward"
-    },
-    {
-      "ms": 33,
-      "at": "r2:reward"
-    },
-    {
-      "ms": 33,
-      "at": "r2:reward"
-    },
-    {
-      "ms": 33,
-      "at": "r3:battle"
-    },
-    {
-      "ms": 33,
-      "at": "r3:battle"
-    },
-    {
-      "ms": 33,
-      "at": "r3:battle"
-    },
-    {
-      "ms": 33,
-      "at": "r3:reward"
-    },
-    {
-      "ms": 33,
-      "at": "r3:reward"
-    },
-    {
-      "ms": 33,
-      "at": "r3:reward"
-    },
-    {
-      "ms": 33,
-      "at": "r4:reward"
-    },
-    {
-      "ms": 33,
-      "at": "r4:reward"
-    }
-  ],
+  "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 (0x00002808) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "longFrames": [],
   "seed": 101,
-  "loadMs": 275,
+  "loadMs": 433,
   "result": "won",
   "round": 5,
   "score": 645,
   "fps": {
-    "samples": 109,
-    "min": 47,
+    "samples": 111,
+    "min": 60,
     "avg": 60
   },
   "consoleErrors": [],

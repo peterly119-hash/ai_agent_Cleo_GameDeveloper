@@ -153,7 +153,13 @@ test('bot plays a full run with all gates satisfied', async ({ page }) => {
   const minFps = fpsSamples.length ? Math.min(...fpsSamples) : 0;
   const avgFps = fpsSamples.reduce((a, b) => a + b, 0) / Math.max(1, fpsSamples.length);
   const longFrames = await page.evaluate(() => (window as unknown as { __longFrames: unknown[] }).__longFrames);
+  const gpu = await page.evaluate(() => {
+    const gl = document.createElement('canvas').getContext('webgl');
+    const ext = gl?.getExtension('WEBGL_debug_renderer_info');
+    return ext && gl ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : 'unknown';
+  });
   const report = {
+    gpu,
     longFrames,
     seed: SEED,
     loadMs,
