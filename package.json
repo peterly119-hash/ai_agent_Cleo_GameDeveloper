@@ -1,0 +1,21 @@
+{
+  "name": "questwright",
+  "private": true,
+  "description": "Questwright AI game studio monorepo",
+  "workspaces": [
+    "lib",
+    "games/*"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "gates": "npm run gates --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "typescript": "5.9.3",
+    "vite": "8.3.6",
+    "vitest": "5.1.0"
+  }
+}
