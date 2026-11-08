@@ -1,12 +1,82 @@
 {
+  "longFrames": [
+    {
+      "ms": 33,
+      "at": "r1:battle"
+    },
+    {
+      "ms": 33,
+      "at": "r1:battle"
+    },
+    {
+      "ms": 33,
+      "at": "r1:battle"
+    },
+    {
+      "ms": 33,
+      "at": "r1:reward"
+    },
+    {
+      "ms": 33,
+      "at": "r1:reward"
+    },
+    {
+      "ms": 33,
+      "at": "r1:reward"
+    },
+    {
+      "ms": 33,
+      "at": "r1:reward"
+    },
+    {
+      "ms": 33,
+      "at": "r2:reward"
+    },
+    {
+      "ms": 33,
+      "at": "r2:reward"
+    },
+    {
+      "ms": 33,
+      "at": "r3:battle"
+    },
+    {
+      "ms": 33,
+      "at": "r3:battle"
+    },
+    {
+      "ms": 33,
+      "at": "r3:battle"
+    },
+    {
+      "ms": 33,
+      "at": "r3:reward"
+    },
+    {
+      "ms": 33,
+      "at": "r3:reward"
+    },
+    {
+      "ms": 33,
+      "at": "r3:reward"
+    },
+    {
+      "ms": 33,
+      "at": "r4:reward"
+    },
+    {
+      "ms": 33,
+      "at": "r4:reward"
+    }
+  ],
   "seed": 101,
-  "loadMs": 201,
+  "loadMs": 275,
   "result": "won",
   "round": 5,
-  "score": 723,
+  "score": 645,
   "fps": {
-    "samples": 93,
-    "min": 57,
+    "samples": 109,
+    "min": 47,
     "avg": 60
   },
   "consoleErrors": [],

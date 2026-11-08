@@ -100,7 +100,15 @@ export function makeTextures(scene: Phaser.Scene, factions: readonly FactionDef[
       g.fillStyle(C.islandEdge, 1);
       g.fillRoundedRect(8, 44, 56, 18, 6);
       const unit = b.unitGeneration ? f.units.find((u) => u.id === b.unitGeneration) : undefined;
-      if (!unit) {
+      const givesActions = b.upgradePaths[0].passiveEffects.some((e) => e.kind === 'actionsPerTurn');
+      if (!unit && givesActions) {
+        // Command building: a banner on a pole with a star.
+        g.fillStyle(C.ink, 1);
+        g.fillRect(20, 6, 6, 40);
+        poly(g, [[0, 0], [1, 0.3], [0, 0.6]], 40, 0, f.color, 3);
+        g.fillStyle(C.text, 1);
+        g.fillPoints(starPoints(34, 18, 7, 3), true);
+      } else if (!unit) {
         // Support/aura building: a glowing core.
         g.fillStyle(C.burn, 0.35);
         g.fillCircle(36, 28, 24);
@@ -164,5 +172,31 @@ export function makeTextures(scene: Phaser.Scene, factions: readonly FactionDef[
   g.fillCircle(4, 4, 4);
   bake(g, 'dot', 8, 8);
 
+  // Action point: a four-point star.
+  g.fillStyle(C.text, 1);
+  g.fillPoints(starPoints(10, 10, 9, 3.5), true);
+  g.lineStyle(2, C.ink, 1);
+  g.strokePoints(starPoints(10, 10, 9, 3.5), true, true);
+  bake(g, 'icon:action', 20, 20);
+
+  // Edict: a sealed scroll.
+  g.fillStyle(C.crown, 1);
+  g.fillRoundedRect(3, 2, 14, 16, 3);
+  g.lineStyle(2, C.ink, 1);
+  g.strokeRoundedRect(3, 2, 14, 16, 3);
+  g.fillStyle(C.danger, 1);
+  g.fillCircle(10, 13, 3);
+  bake(g, 'icon:edict', 20, 20);
+
   g.destroy();
+}
+
+function starPoints(cx: number, cy: number, outer: number, inner: number): { x: number; y: number }[] {
+  const pts: { x: number; y: number }[] = [];
+  for (let i = 0; i < 8; i++) {
+    const r = i % 2 === 0 ? outer : inner;
+    const a = (i / 8) * Math.PI * 2 - Math.PI / 2;
+    pts.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r });
+  }
+  return pts;
 }

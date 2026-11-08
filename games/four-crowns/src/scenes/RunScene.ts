@@ -39,7 +39,7 @@ export class RunScene extends Phaser.Scene {
   private info!: Phaser.GameObjects.Text;
   private infoTitle!: Phaser.GameObjects.Text;
   private toastText!: Phaser.GameObjects.Text;
-  private hud!: Record<'round' | 'crown' | 'gold' | 'primary' | 'kills' | 'deck', Phaser.GameObjects.Text>;
+  private hud!: Record<'round' | 'crown' | 'actions' | 'primary' | 'kills' | 'hand', Phaser.GameObjects.Text>;
   private speedBtn!: ReturnType<typeof button>;
   private battleBtn!: ReturnType<typeof button>;
   private crownImg!: Phaser.GameObjects.Image;
@@ -142,12 +142,12 @@ export class RunScene extends Phaser.Scene {
     this.hud = {
       round: item(L.margin, null, C.text),
       crown: item(220, 'icon:heart', C.text),
-      gold: item(340, 'icon:gold', C.gold),
+      actions: item(340, 'icon:action', C.text),
       primary: item(460, 'icon:ember', C.burn),
       kills: item(600, null, C.textDim),
-      deck: item(L.margin, null, C.textDim),
+      hand: item(L.margin, null, C.textDim),
     };
-    this.hud.deck.setPosition(L.gridX, L.handY + 30).setFontSize(15);
+    this.hud.hand.setPosition(L.gridX, L.handY + 30).setFontSize(15);
     this.speedBtn = button(this, L.width - 150, y, 70, 34, `x${ctx.settings.speed}`, () => this.cycleSpeed(), { size: 16 });
     button(this, L.width - 60, y, 70, 34, 'Menu', () => this.togglePause(), { size: 16 });
   }
@@ -204,7 +204,7 @@ export class RunScene extends Phaser.Scene {
     const boss = w.groups.some((g) => this.run.content.enemy(g.enemy).boss);
     this.infoTitle.setText(`Round ${this.run.state.round}: ${boss ? 'BOSS ' : ''}incoming`).setColor(hex(boss ? C.danger : C.text));
     this.info.setText(
-      `${parts.join(', ')}.\nClick a card, then a tile. Same building on itself = upgrade (max tier 3). Kilns burn their neighbours' attacks.`,
+      `${parts.join(', ')}.\nEach card costs 1 action (you get ${this.run.actionsPerTurn()} per turn). Click a card, then a tile; same building on itself = upgrade. Your hand carries over.`,
     );
   }
 
@@ -234,7 +234,7 @@ export class RunScene extends Phaser.Scene {
 
   private rebuildHand(): void {
     this.handLayer.removeAll(true);
-    const { hand, gold } = this.run.state;
+    const { hand, actions } = this.run.state;
     const startX = 420;
     hand.forEach((cardId, i) => {
       const card = this.run.content.card(cardId);
@@ -248,24 +248,24 @@ export class RunScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true });
       const cy = bg.y;
       const items: Phaser.GameObjects.GameObject[] = [bg];
-      const iconKey = card.type === 'building' ? `bld:${card.ref}` : card.type === 'skill' ? 'icon:ember' : 'icon:gold';
+      const iconKey = card.type === 'building' ? `bld:${card.ref}` : card.type === 'skill' ? 'icon:ember' : 'icon:edict';
       items.push(this.add.image(x, cy - 22, iconKey).setScale(card.type === 'building' ? 0.7 : 1.6));
       items.push(
         this.add.text(x, cy + 22, this.run.content.cardName(cardId), { ...textStyle(15, C.text, true), align: 'center', wordWrap: { width: L.cardW - 12 } }).setOrigin(0.5),
       );
       const typeLabel = card.type === 'skill' ? 'Decree' : card.type === 'edict' ? 'Edict' : 'Building';
       items.push(this.add.text(x, cy + 48, typeLabel, textStyle(13, C.textDim)).setOrigin(0.5));
-      items.push(this.add.circle(x + L.cardW / 2 - 18, cy - L.cardH / 2 + 18, 14, C.gold).setStrokeStyle(2, C.ink));
-      items.push(this.add.text(x + L.cardW / 2 - 18, cy - L.cardH / 2 + 18, `${card.cost}`, textStyle(16, C.ink, true)).setOrigin(0.5));
+      items.push(this.add.image(x + L.cardW / 2 - 30, cy - L.cardH / 2 + 18, 'icon:action'));
+      items.push(this.add.text(x + L.cardW / 2 - 12, cy - L.cardH / 2 + 18, `${card.actionCost}`, textStyle(16, C.text, true)).setOrigin(0.5));
       items.push(this.add.text(x - L.cardW / 2 + 8, cy - L.cardH / 2 + 6, `${i + 1}`, textStyle(13, C.textDim)));
-      const affordable = card.cost <= gold && this.anyValidTarget(i);
+      const affordable = card.actionCost <= actions && this.anyValidTarget(i);
       for (const it of items) (it as unknown as Phaser.GameObjects.Components.Alpha).setAlpha(affordable ? 1 : 0.45);
       bg.on('pointerover', () => this.showCardInfo(cardId));
       bg.on('pointerdown', (p: Phaser.Input.Pointer) => (p.rightButtonDown() ? this.cancel() : this.selectCard(i)));
       this.handLayer.add(items);
     });
     const s = this.run.state;
-    this.hud.deck.setText(`Deck ${s.deck.length} · Discard ${s.discard.length}`);
+    this.hud.hand.setText(`Hand: ${s.hand.length} card${s.hand.length === 1 ? '' : 's'}`);
   }
 
   private anyValidTarget(handIndex: number): boolean {
@@ -277,7 +277,7 @@ export class RunScene extends Phaser.Scene {
 
   private showCardInfo(cardId: string): void {
     const card = this.run.content.card(cardId);
-    this.infoTitle.setText(`${this.run.content.cardName(cardId)}  ·  ${card.cost} gold`).setColor(hex(C.text));
+    this.infoTitle.setText(`${this.run.content.cardName(cardId)}  ·  ${card.actionCost} action`).setColor(hex(C.text));
     let extra = '';
     if (card.type === 'building') {
       const b = this.run.content.building(card.ref);
@@ -316,7 +316,7 @@ export class RunScene extends Phaser.Scene {
     }
     if (!this.anyValidTarget(i)) {
       const r = this.run.canPlay(i, 0);
-      this.toast(this.run.content.card(cardId).cost > this.run.state.gold ? 'Not enough gold' : r.ok ? 'No valid tile' : r.reason);
+      this.toast(this.run.content.card(cardId).actionCost > this.run.state.actions ? 'No actions left: press Battle' : r.ok ? 'No valid tile' : r.reason);
       ctx.audio.play('invalid');
       return;
     }
@@ -360,6 +360,7 @@ export class RunScene extends Phaser.Scene {
     this.rebuildGrid();
     this.rebuildHand();
     this.refreshHud();
+    if (this.run.state.actions === 0) this.toast('Out of actions: press Battle!');
     ctx.progress();
     return true;
   }
@@ -393,7 +394,12 @@ export class RunScene extends Phaser.Scene {
     this.rebuildGrid();
     this.buildSkillBar();
     this.infoTitle.setText(`Round ${this.run.state.round}: battle!`).setColor(hex(C.text));
-    this.info.setText(this.learnedSkills().length ? 'Cast decrees with the buttons below or Q/W/E. Firestorm: click it, then click a lane.' : 'Your buildings fight on their own. Learn decrees to join in.');
+    const laneSkill = this.learnedSkills().find((id) => this.run.content.skill(id).areaOfEffect === 'lane');
+    this.info.setText(
+      this.learnedSkills().length
+        ? `Cast decrees with the buttons below or Q/W/E.${laneSkill ? ` ${this.run.content.skill(laneSkill).name}: click it, then click a lane.` : ''}`
+        : 'Your buildings fight on their own. Learn decrees to join in.',
+    );
     ctx.audio.play('horn');
     ctx.progress();
   }
@@ -683,7 +689,7 @@ export class RunScene extends Phaser.Scene {
     c.add(this.add.text(L.width / 2, 110, `Round ${this.run.state.round} cleared`, textStyle(36, C.text, true)).setOrigin(0.5));
     c.add(
       this.add
-        .text(L.width / 2, 156, `${r.kills} Shardborn destroyed · Crown took ${r.crownDamage} damage · Choose a card for your deck`, textStyle(18, C.textDim))
+        .text(L.width / 2, 156, `${r.kills} Shardborn destroyed · Crown took ${r.crownDamage} damage · Choose a card to add to your hand`, textStyle(18, C.textDim))
         .setOrigin(0.5),
     );
     this.run.state.rewardOptions.forEach((cardId, i) => {
@@ -695,19 +701,19 @@ export class RunScene extends Phaser.Scene {
       bg.on('pointerover', () => bg.setStrokeStyle(4, C.text));
       bg.on('pointerout', () => bg.setStrokeStyle(3, color));
       bg.on('pointerdown', () => this.pickReward(i));
-      const iconKey = card.type === 'building' ? `bld:${card.ref}` : card.type === 'skill' ? 'icon:ember' : 'icon:gold';
+      const iconKey = card.type === 'building' ? `bld:${card.ref}` : card.type === 'skill' ? 'icon:ember' : 'icon:edict';
       c.add([
         bg,
         this.add.image(x, y - 90, iconKey).setScale(card.type === 'building' ? 1 : 2.2),
         this.add.text(x, y - 30, this.run.content.cardName(cardId), textStyle(20, C.text, true)).setOrigin(0.5),
-        this.add.text(x, y - 4, `${card.type === 'skill' ? 'Decree' : card.type === 'edict' ? 'Edict' : 'Building'} · ${card.cost} gold`, textStyle(14, C.textDim)).setOrigin(0.5),
+        this.add.text(x, y - 4, `${card.type === 'skill' ? 'Decree' : card.type === 'edict' ? 'Edict' : 'Building'} · ${card.actionCost} action`, textStyle(14, C.textDim)).setOrigin(0.5),
         this.add
           .text(x, y + 14, this.run.content.cardDescription(cardId), { ...textStyle(14, C.textDim), align: 'center', wordWrap: { width: 200 } })
           .setOrigin(0.5, 0),
         this.add.text(x - 104, y - 136, `${i + 1}`, textStyle(14, C.textDim)),
       ]);
     });
-    const skip = button(this, L.width / 2, 580, 260, 50, `Skip: +${this.run.balance.rewardSkipGold} gold  [S]`, () => this.pickReward(null));
+    const skip = button(this, L.width / 2, 580, 340, 50, `Skip: +${this.run.balance.rewardSkipActions} action next turn  [S]`, () => this.pickReward(null));
     c.add([skip.bg, skip.text]);
     this.overlay = c;
     ctx.audio.play('reward');
@@ -785,7 +791,7 @@ export class RunScene extends Phaser.Scene {
     const s = this.run.state;
     this.hud.round.setText(`Round ${s.round} / ${this.run.balance.rounds}`);
     this.hud.crown.setText(`${s.crownHp}`);
-    this.hud.gold.setText(`${s.gold}`);
+    this.hud.actions.setText(`${s.actions} action${s.actions === 1 ? '' : 's'}`);
     this.hud.primary.setText(`${Math.floor(s.primary)} ${this.faction.primaryResource.name}`);
     this.hud.kills.setText(`Kills ${s.kills}`);
   }
@@ -805,7 +811,7 @@ export class RunScene extends Phaser.Scene {
       seed: s.seed,
       round: s.round,
       crownHp: b ? s.crownHp - b.crownDamage : s.crownHp,
-      gold: s.gold,
+      actions: s.actions,
       primary: b ? b.primary : s.primary,
       kills: s.kills,
       hand: s.hand.map((id) => this.run.content.cardName(id)),
