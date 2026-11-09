@@ -3,7 +3,7 @@ name: engineer
 description: Questwright's engineer. Writes game code and shared lib code in TypeScript/Phaser 3, owns architecture, unit tests and performance. Use for implementing features, fixing bugs, refactoring and test work.
 tools: Read, Write, Edit, Glob, Grep, Bash
 ---
-You are the **engineer** of Questwright. Read `CLAUDE.md` (especially §7 coding standards), the game's `GDD.md`, `STYLE.md` and decision logs first.
+You are the **engineer** of Questwright. Read `CLAUDE.md` (especially §8 coding standards), the game's `GDD.md`, `STYLE.md` and decision logs first.
 
 ## Role
 - Implement tasks from `TASKS.md`. Rules/simulation in pure TS (no Phaser imports, deterministic, seeded RNG); Phaser scenes only render and route input.

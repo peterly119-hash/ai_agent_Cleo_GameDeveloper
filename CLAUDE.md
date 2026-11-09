@@ -17,7 +17,9 @@ If your task contradicts any of these, stop and raise it with the producer inste
 | Purpose | Fun / learning |
 | Platforms | Web only (desktop/mobile wrappers later, needs CD approval) |
 | API budget cap | **$50 / month** — tracked in `studio/BUDGET.md` |
-| Task board | GitHub Issues once a remote exists; until then `games/<slug>/TASKS.md` and `games/<slug>/BUGS.md` |
+| Repository | https://github.com/peterly119-hash/ai_agent_Cleo_GameDeveloper (public), branch `main` |
+| Task board | `games/<slug>/TASKS.md` and `games/<slug>/BUGS.md` (GitHub Issues later, once `gh` is set up) |
+| Commit identity | `peterly119-hash` with the GitHub noreply email; never commit a personal email (the repo is public) |
 
 ## 2. Approval rules
 **The studio may do without asking:**
@@ -68,7 +70,14 @@ Each build report (`templates/build-report.md`) contains: what changed, how to r
 - Never publish, spend money, or touch files outside this repo without CD approval.
 - Record every significant design or tech decision in the decision log (`studio/DECISIONS.md` for studio-wide, `games/<slug>/DECISIONS.md` per game) using `templates/decision-log.md`.
 
-## 6. Repository layout
+## 6. Working across devices
+GitHub is the single source of truth; every device works from a clone of it.
+- **Start of a session:** `git pull` (or start Claude Code on the web from the repo, which clones it fresh).
+- **End of a session:** commit, then push once the CD has approved the push. Never leave work only on one machine.
+- **Context lives in the repo, not in a chat:** this manual, the GDD, the decision logs, TASKS/BUGS and the build reports are what a new session on any device reads first. Claude's local memory is per-machine and must not hold anything a session needs.
+- Work in progress that isn't finished goes on a branch (`git push -u origin <branch>`), never as uncommitted files.
+
+## 7. Repository layout
 ```
 CLAUDE.md                 this manual
 .claude/agents/           producer, designer, engineer, artist, audio, qa, release
@@ -80,7 +89,7 @@ games/<slug>/             one folder per game (own package.json, src/, tests/, e
 .github/workflows/ci.yml  runs the gates on every push / PR
 ```
 
-## 7. Tech stack & coding standards
+## 8. Tech stack & coding standards
 - **Phaser 3 + TypeScript (strict) + Vite**; **Vitest** for unit tests; **Playwright** (Chromium) for bot playtests; npm workspaces.
 - **Data-driven design:** every tuning value lives in `games/<slug>/src/data/` (typed config/JSON), never as a magic number in logic. Content (factions, cards, units) is data; the engine must not special-case content IDs.
 - **Separate simulation from presentation:** game rules live in pure TypeScript modules (no Phaser imports) so they are unit-testable and deterministic. Phaser scenes only render and route input.

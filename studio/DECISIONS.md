@@ -2,6 +2,11 @@
 
 Format: see `templates/decision-log.md`. Newest first.
 
+## D-004 — 2026-11-09 — GitHub remote as the source of truth
+- **Context:** The CD wants to work from several devices.
+- **Decision:** The repo is pushed to https://github.com/peterly119-hash/ai_agent_Cleo_GameDeveloper (public). Local history was rewritten before the first push so that commits use the GitHub noreply email instead of a personal address. The workflow is pull at session start, push at session end (CLAUDE.md §6). Supersedes D-002's "no remote" context.
+- **Decided by:** CD.
+
 ## D-003 — 2026-11-08 — Bot playthrough measures fps with GPU rendering
 - **Context:** Playwright's default headless Chromium renders WebGL in software. On a busy machine, even the unchanged M1 build dipped to 46 fps for a few frames at screen transitions (all single 33 ms frames), so the fps gate was measuring the rig rather than the game.
 - **Decision:** Launch Chromium with GPU flags (`playwright.config.ts`). The report records the GPU used and logs every long frame (> 25 ms) by phase. On this machine (RTX 4060): 60 fps minimum, 0 long frames.
