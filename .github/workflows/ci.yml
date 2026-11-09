@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -19,7 +19,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # Runs typecheck, unit tests, build, bot playthrough and screenshots for lib + every game.
       - run: npm run gates
-      - uses: actions/upload-artifact@v4
+        env:
+          # No GPU on hosted runners: fps is reported, not gated, in CI. The 50 fps gate runs locally on GPU (studio D-003).
+          QW_MIN_FPS: '0'
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: qa-evidence

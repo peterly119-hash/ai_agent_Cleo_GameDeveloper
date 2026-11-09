@@ -2,6 +2,11 @@
 
 Format: see `templates/decision-log.md`. Newest first.
 
+## D-005 — 2026-11-09 — CI reports fps but does not gate on it
+- **Context:** The first CI run failed in `npm run gates`. Hosted runners have no GPU, so WebGL renders in software (see D-003).
+- **Decision:** CI sets `QW_MIN_FPS=0`, so it still enforces build, tests, crash, soft-lock and console-error checks, but only *reports* fps (as a run annotation). The 50 fps gate remains mandatory in the local QA run on GPU before any build reaches the CD.
+- **Decided by:** producer + qa, CD informed.
+
 ## D-004 — 2026-11-09 — GitHub remote as the source of truth
 - **Context:** The CD wants to work from several devices.
 - **Decision:** The repo is pushed to https://github.com/peterly119-hash/ai_agent_Cleo_GameDeveloper (public). Local history was rewritten before the first push so that commits use the GitHub noreply email instead of a personal address. The workflow is pull at session start, push at session end (CLAUDE.md §6). Supersedes D-002's "no remote" context.

@@ -4,7 +4,8 @@ export default defineConfig({
   testDir: 'e2e',
   timeout: 8 * 60 * 1000,
   retries: 0,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  // In CI, the 'github' reporter turns failures into annotations visible on the run page.
+  reporter: process.env.CI ? [['github'], ['list'], ['html', { open: 'never' }]] : [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: 'http://localhost:4173',
     viewport: { width: 1280, height: 720 },

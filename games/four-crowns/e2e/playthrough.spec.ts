@@ -10,7 +10,8 @@ import { join } from 'node:path';
 const SHOTS = join(process.cwd(), 'qa', 'screenshots');
 const SEED = 101;
 const SOFTLOCK_MS = 15000;
-const MIN_FPS = 50;
+/** Gate 3 floor. CI runners have no GPU, so CI sets QW_MIN_FPS=0 and only reports fps (studio D-003). */
+const MIN_FPS = Number(process.env['QW_MIN_FPS'] ?? 50);
 
 type Hook = {
   ready: boolean;
@@ -172,6 +173,9 @@ test('bot plays a full run with all gates satisfied', async ({ page }) => {
   };
   writeFileSync(join(process.cwd(), 'qa', 'e2e-report.json'), JSON.stringify(report, null, 2));
   console.log('E2E REPORT', JSON.stringify(report));
+  if (process.env['GITHUB_ACTIONS']) {
+    console.log(`::notice title=Four Crowns playthrough::${report.result} r${String(report.round)} · load ${loadMs}ms · fps min ${minFps}/avg ${Math.round(avgFps)} · ${gpu}`);
+  }
 
   // Gate 1: no console errors. Gate 3: finished, fps floor.
   expect(errors).toEqual([]);
